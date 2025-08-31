@@ -222,4 +222,51 @@ public class SampleListServiceImplTest extends BaseServiceImplTest {
     Assert.assertEquals(expectedSampleLists, result);
     Assert.assertEquals((Integer) 1, expectedSampleLists.get(0).getSampleCount());
   }
+
+  @Test
+  public void getAllSampleListsInStudyWithNullSampleIds() throws Exception {
+
+    List<SampleList> expectedSampleLists = new ArrayList<>();
+    SampleList sampleList = new SampleList();
+    sampleList.setListId(1);
+    expectedSampleLists.add(sampleList);
+
+    // Mock getSampleListSampleIds to return null to simulate data inconsistency
+    Mockito.when(sampleListRepository.getSampleListSampleIds(Arrays.asList(1)))
+        .thenReturn(null);
+
+    Mockito.when(
+            sampleListRepository.getAllSampleListsInStudies(
+                Arrays.asList(STUDY_ID), "DETAILED", PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
+        .thenReturn(expectedSampleLists);
+
+    List<SampleList> result =
+        sampleListService.getAllSampleListsInStudy(
+            STUDY_ID, "DETAILED", PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
+
+    Assert.assertEquals(expectedSampleLists, result);
+    // Should have empty sample IDs list and count of 0
+    Assert.assertEquals(0, expectedSampleLists.get(0).getSampleIds().size());
+    Assert.assertEquals((Integer) 0, expectedSampleLists.get(0).getSampleCount());
+  }
+
+  @Test
+  public void getSampleListWithNullSampleIds() throws Exception {
+
+    SampleList expectedSampleList = new SampleList();
+    expectedSampleList.setListId(1);
+
+    Mockito.when(sampleListRepository.getSampleList(SAMPLE_LIST_ID)).thenReturn(expectedSampleList);
+
+    // Mock getSampleListSampleIds to return null to simulate data inconsistency
+    Mockito.when(sampleListRepository.getSampleListSampleIds(Arrays.asList(1)))
+        .thenReturn(null);
+
+    SampleList result = sampleListService.getSampleList(SAMPLE_LIST_ID);
+
+    Assert.assertEquals(expectedSampleList, result);
+    // Should have empty sample IDs list and count of 0
+    Assert.assertEquals(0, result.getSampleIds().size());
+    Assert.assertEquals((Integer) 0, result.getSampleCount());
+  }
 }

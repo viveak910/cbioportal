@@ -65,10 +65,15 @@ public class SampleListServiceImpl implements SampleListService {
 
     List<SampleListToSampleId> sampleListToSampleIds =
         sampleListRepository.getSampleListSampleIds(Arrays.asList(sampleList.getListId()));
-    sampleList.setSampleIds(
-        sampleListToSampleIds.stream()
-            .map(SampleListToSampleId::getSampleId)
-            .collect(Collectors.toList()));
+    
+    if (sampleListToSampleIds != null) {
+      sampleList.setSampleIds(
+          sampleListToSampleIds.stream()
+              .map(SampleListToSampleId::getSampleId)
+              .collect(Collectors.toList()));
+    } else {
+      sampleList.setSampleIds(new ArrayList<>());
+    }
     sampleList.setSampleCount(sampleList.getSampleIds().size());
     return sampleList;
   }
@@ -129,18 +134,23 @@ public class SampleListServiceImpl implements SampleListService {
 
   private void addSampleCounts(List<SampleList> sampleLists) {
 
-    sampleLists.forEach(s -> s.setSampleCount(s.getSampleIds().size()));
+    sampleLists.forEach(s -> s.setSampleCount(s.getSampleIds() != null ? s.getSampleIds().size() : 0));
   }
 
   private void addSampleIds(List<SampleList> sampleLists) {
 
     for (SampleList sampleList : sampleLists) {
-      sampleList.setSampleIds(
-          sampleListRepository
-              .getSampleListSampleIds(Arrays.asList(sampleList.getListId()))
-              .stream()
-              .map(SampleListToSampleId::getSampleId)
-              .collect(Collectors.toList()));
+      List<SampleListToSampleId> sampleListToSampleIds = 
+          sampleListRepository.getSampleListSampleIds(Arrays.asList(sampleList.getListId()));
+      
+      if (sampleListToSampleIds != null) {
+        sampleList.setSampleIds(
+            sampleListToSampleIds.stream()
+                .map(SampleListToSampleId::getSampleId)
+                .collect(Collectors.toList()));
+      } else {
+        sampleList.setSampleIds(new ArrayList<>());
+      }
     }
   }
 
